@@ -1,10 +1,8 @@
-# Don’t track processed data or bulky artefacts
+# Ignore processed data
 data/processed/
 
-# Ignore every file in models/ **except** model.pkl
-models/*
-!models/model.pkl
-
-# Ignore any other stray pickles in the repo
+# Ignore all pickles by default
 *.pkl
-__pycache__/
+
+# …but keep this one model artefact
+!models/model.pkl
