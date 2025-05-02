@@ -1,0 +1,5 @@
+# Don’t track processed data or model artefacts
+data/processed/
+models/
+*.pkl
+__pycache__/
