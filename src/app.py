@@ -59,9 +59,9 @@ if st.button("Predict"):
         explainer = shap_utils.shap_explainer(pipe)           # cached helper
         shap_values = explainer(pipe.named_steps["prep"].transform(inputs))
     
-        fig, ax = plt.subplots()
-        shap.plots.waterfall(shap_values[0],
-                             max_display=8,
-                             show=False,
-                             ax=ax)
-        st.pyplot(fig)
+        fig = shap.plots.waterfall(
+            shap_values[0],
+            max_display=8,
+            show=False          # keep SHAP from immediately popping a window
+        )
+        st.pyplot(fig, bbox_inches="tight")
