@@ -65,10 +65,10 @@ if st.button("Predict"):
         shap_values = explainer(X_input_proc)
 
         # --- SHAP waterfall ---------------------------------------------
-        fig = shap.plots.waterfall(
+        shap.plots.waterfall(
             shap_values[0],
             max_display=12,
-            show=False          # keeps the figure object so we can pass it on
+            show=False
         )
-        st.pyplot(fig)
-        plt.close(fig)
+        st.pyplot(plt.gcf())        
+        plt.clf()                   
