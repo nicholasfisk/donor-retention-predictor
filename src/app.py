@@ -67,8 +67,9 @@ if st.button("Predict"):
         fig = plt.figure()
         shap.plots.waterfall(
             shap_values[0],
-            max_display=10,      # show all 10 original + any one-hot cols
+            max_display=12,       # show at most 12 bars (keeps panel compact)
             show=False,
+            color_bar=False       # hide the default blue→red colour bar
         )
         st.pyplot(fig)
         plt.close(fig)
