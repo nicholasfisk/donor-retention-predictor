@@ -4,3 +4,5 @@ scikit-learn==1.4.2     # 1.4+ is the first wheel series that supports Python 3.
 joblib                  # loader for the .pkl file
 streamlit==1.32.2
 shap==0.45.0
+matplotlib==3.9.0      # any 3.8+ release works with Python 3.12
+pytest                 
