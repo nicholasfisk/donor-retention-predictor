@@ -56,12 +56,12 @@ def shap_explainer(trained_pipe, n_background: int = 200):
     # ---------- Pre-process and build explainer -------------------------
     X_bg_proc_df, feat_names = _preprocess_with_feature_names(trained_pipe, df_bg)
 
-    # Drop the 'num__' / 'cat__' prefixes for cleaner display
+    # Strip num__/cat__ prefixes
     clean_names = [n.replace("num__", "").replace("cat__", "") for n in feat_names]
 
     explainer = shap.Explainer(
         trained_pipe.named_steps["clf"],
         X_bg_proc_df,
-        feature_names=clean_names,   # use the cleaned names
+        feature_names=clean_names,   #  ← passes cleaned names
     )
-    return explainer, clean_names
+    return explainer, clean_names   #  ← returns cleaned names
