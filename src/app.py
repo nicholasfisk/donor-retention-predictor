@@ -64,12 +64,11 @@ if st.button("Predict"):
         )
         shap_values = explainer(X_input_proc)
 
-        fig = plt.figure()
-        shap.plots.waterfall(
+        # --- SHAP waterfall ---------------------------------------------
+        fig = shap.plots.waterfall(
             shap_values[0],
-            max_display=12,       # show at most 12 bars (keeps panel compact)
-            show=False,
-            color_bar=False       # hide the default blue→red colour bar
+            max_display=12,
+            show=False          # keeps the figure object so we can pass it on
         )
         st.pyplot(fig)
         plt.close(fig)
