@@ -1,10 +1,8 @@
 """
 shap_utils.py
 -------------
-Utility to build a SHAP explainer for the trained pipeline.
-Loads 200 random rows from the augmented donor file
-and passes them through the pipeline’s pre-processor so
-SHAP gets the same feature space the model sees.
+Build a SHAP explainer with real, readable feature names
+--------------------------------------------------------
 """
 
 from pathlib import Path
@@ -15,32 +13,52 @@ import shap
 BACKGROUND_CSV = Path("data/processed/transfusion_augmented.csv")
 
 
+def _preprocess_with_feature_names(pipe, df):
+    """Return (X_proc_dataframe, feature_names) after pipeline transform."""
+    pre = pipe.named_steps["prep"]
+    X_proc = pre.transform(df)
+    names = pre.get_feature_names_out()         # all numeric + one-hot cols
+    X_df   = pd.DataFrame(X_proc, columns=names)
+    return X_df, names
+
+
 def shap_explainer(trained_pipe, n_background: int = 200):
-    """
-    Returns a TreeExplainer (works for both GBM and logistic),
-    fitted on a small, pre-processed background sample.
-    """
-    if not BACKGROUND_CSV.exists():
-        raise FileNotFoundError(
-            f"Background file {BACKGROUND_CSV} missing. "
-            "Run data_generation.py first or commit the CSV."
+    """Return (explainer, feature_names) ready for plotting."""
+    # ---------- Get / build background sample ---------------------------
+    if BACKGROUND_CSV.exists():
+        df_bg = (
+            pd.read_csv(BACKGROUND_CSV)
+            .drop(columns=["donated_again"])
+            .sample(n=n_background, random_state=42)
+            .reset_index(drop=True)
+        )
+    else:
+        # fall back: regenerate on the fly
+        from src.data_generation import make_synthetic_features
+        raw = pd.read_csv(
+            "data/raw/transfusion.data",
+            header=None,
+            names=[
+                "recency_months",
+                "frequency",
+                "monetary_cc",
+                "time_months",
+                "donated_again",
+            ],
+        )
+        df_bg = (
+            make_synthetic_features(raw)
+            .drop(columns=["donated_again"])
+            .sample(n=n_background, random_state=42)
+            .reset_index(drop=True)
         )
 
-    # 1. sample rows & drop the target column
-    df_bg = (
-        pd.read_csv(BACKGROUND_CSV)
-        .drop(columns=["donated_again"])
-        .sample(n=n_background, random_state=42)
-        .reset_index(drop=True)
-    )
+    # ---------- Pre-process and build explainer -------------------------
+    X_bg_proc_df, feat_names = _preprocess_with_feature_names(trained_pipe, df_bg)
 
-    # 2. pass through the pipeline’s pre-processor
-    X_bg_proc = trained_pipe.named_steps["prep"].transform(df_bg)
-
-    # 3. Build SHAP explainer on the *fitted model* + background
     explainer = shap.Explainer(
         trained_pipe.named_steps["clf"],
-        X_bg_proc,
-        algorithm="auto",
+        X_bg_proc_df,
+        feature_names=feat_names,
     )
-    return explainer
+    return explainer, feat_names
