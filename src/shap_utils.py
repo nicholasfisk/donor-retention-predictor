@@ -54,14 +54,15 @@ def shap_explainer(trained_pipe, n_background: int = 200):
         )
 
     # ---------- Pre-process and build explainer -------------------------
-    X_bg_proc_df, feat_names = _preprocess_with_feature_names(trained_pipe, df_bg)
+    X_bg_proc_df, raw_names = _preprocess_with_feature_names(trained_pipe, df_bg)
 
-    # Strip num__/cat__ prefixes
-    clean_names = [n.replace("num__", "").replace("cat__", "") for n in feat_names]
+    # Strip prefixes
+    clean_names = [n.replace("num__", "").replace("cat__", "") for n in raw_names]
+    X_bg_proc_df.columns = clean_names           #  ← rename columns here
 
     explainer = shap.Explainer(
         trained_pipe.named_steps["clf"],
         X_bg_proc_df,
-        feature_names=clean_names,   #  ← passes cleaned names
+        feature_names=clean_names,
     )
-    return explainer, clean_names   #  ← returns cleaned names
+    return explainer, clean_names

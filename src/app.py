@@ -62,6 +62,7 @@ if st.button("Predict"):
         X_input_proc, _ = shap_utils._preprocess_with_feature_names(
             pipe, inputs
         )
+        X_input_proc.columns = feat_names
         shap_values = explainer(X_input_proc)
 
         # --- SHAP waterfall ---------------------------------------------
