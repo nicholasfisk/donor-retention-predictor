@@ -56,12 +56,13 @@ if st.button("Predict"):
     st.progress(proba)
     # --- SHAP explanation ------------------------------------------------
     with st.expander("Explain this prediction", expanded=False):
-        explainer = shap_utils.shap_explainer(pipe)           # cached helper
-        shap_values = explainer(pipe.named_steps["prep"].transform(inputs))
-    
-        fig = shap.plots.waterfall(
-            shap_values[0],
-            max_display=8,
-            show=False          # keep SHAP from immediately popping a window
+        explainer = shap_utils.shap_explainer(pipe)
+        shap_values = explainer(
+            pipe.named_steps["prep"].transform(inputs)
         )
-        st.pyplot(fig, bbox_inches="tight")
+
+        # Create a fresh figure, draw the waterfall on it, then show it
+        fig = plt.figure()
+        shap.plots.waterfall(shap_values[0], max_display=8, show=False)
+        st.pyplot(fig)           # no extra kwargs needed
+        plt.close(fig)           # tidy up the Matplotlib state
