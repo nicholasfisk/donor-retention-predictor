@@ -1,6 +1,9 @@
 # Ignore processed data
 data/processed/
 
+# keep the background sample for SHAP
+!data/processed/transfusion_augmented.csv
+
 # Ignore all pickles by default
 *.pkl
 
