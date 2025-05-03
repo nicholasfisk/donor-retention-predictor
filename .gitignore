@@ -1,11 +1,12 @@
-# Ignore processed data
-data/processed/
+# Ignore everything inside data/processed …
 
-# keep the background sample for SHAP
+data/processed/**
+
+# …but keep the folder itself and one CSV for SHAP
+!data/processed/
 !data/processed/transfusion_augmented.csv
 
-# Ignore all pickles by default
+# Ignore all pickles by default …
 *.pkl
-
-# …but keep this one model artefact
+# …except the trained model artefact
 !models/model.pkl
