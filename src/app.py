@@ -9,6 +9,9 @@ import numpy as np
 import pandas as pd
 import streamlit as st
 from pathlib import Path
+import shap
+import matplotlib.pyplot as plt
+import shap_utils  
 
 MODEL_PATH = Path("models/model.pkl")
 
@@ -51,3 +54,14 @@ if st.button("Predict"):
     proba = pipe.predict_proba(inputs)[0, 1]
     st.metric("Probability donor gives again", f"{proba*100:.1f}%")
     st.progress(proba)
+    # --- SHAP explanation ------------------------------------------------
+    with st.expander("Explain this prediction", expanded=False):
+        explainer = shap_utils.shap_explainer(pipe)           # cached helper
+        shap_values = explainer(pipe.named_steps["prep"].transform(inputs))
+    
+        fig, ax = plt.subplots()
+        shap.plots.waterfall(shap_values[0],
+                             max_display=8,
+                             show=False,
+                             ax=ax)
+        st.pyplot(fig)
